@@ -1,0 +1,11 @@
+{% extends "tasks/layout.html" %}
+{% block content%}
+<h1>Task List</h1>
+   <ul>
+       {% for task in tasks %}
+           <li>{{ task }}</li>
+       {% empty %}
+           <li>No Tasks.</li>
+       {% endfor %}
+   </ul>
+   {% endblock %}
