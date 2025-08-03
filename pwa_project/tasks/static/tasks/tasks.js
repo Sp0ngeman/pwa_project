@@ -14,29 +14,19 @@ function getCSRFToken() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const addTaskForm = document.querySelector("#taskForm");
     // Initialize IndexedDB when the page loads
     initializeIndexedDB();
-    // Load the entire task list on page load
-    loadTaskList();
+    
     // Pass the CSRF token to the service worker
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then(function(registration) {
             registration.active.postMessage({ csrfToken: getCSRFToken() });
         });
     }
-    if (addTaskForm) {
-        addTaskForm.addEventListener("submit", function(event) {
-            if (!navigator.onLine) {
-                // Only intercept form submission when offline
-                event.preventDefault();
-                const task = { name: event.target.elements.task.value };
-                saveTask(task);
-                registerSync();
-            }
-            // When online, let the normal Django form submission proceed
-        });
-    }
+    
+    // TEMPORARILY DISABLE ALL FORM INTERCEPTION AND TASK LOADING
+    // This will let Django handle everything normally
+    console.log("JavaScript loaded - form interception disabled for debugging");
 });
 
 // Function to fetch the task list from the server and display it
@@ -142,7 +132,26 @@ function submitTaskToServer(task) {
 function addTaskToPage(task) {
     const taskList = document.querySelector('#task-list');
     const taskElement = document.createElement('li');
-    taskElement.textContent = `${task.name} - ${task.completed ? 'Completed' : 'Incomplete'}`;
+    
+    // Add completion class if task is completed
+    if (task.completed) {
+        taskElement.className = 'completed';
+    }
+    
+    // Create the task name span
+    const taskNameSpan = document.createElement('span');
+    taskNameSpan.className = 'task-name';
+    taskNameSpan.textContent = task.name;
+    
+    // Create the status span
+    const statusSpan = document.createElement('span');
+    statusSpan.className = `status ${task.completed ? 'completed' : 'pending'}`;
+    statusSpan.textContent = task.completed ? '✓ Completed' : '○ Pending';
+    
+    // Append the spans to the li element
+    taskElement.appendChild(taskNameSpan);
+    taskElement.appendChild(statusSpan);
+    
     taskList.appendChild(taskElement);
 }
 
