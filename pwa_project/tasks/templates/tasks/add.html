@@ -1,6 +1,6 @@
 {% extends "tasks/layout.html" %}
 {% load static %}
-{% block content%}
+{% block content %}
 <h1>Add Task</h1>
 <form action="{% url 'tasks:add' %}" method="post" id="taskForm">
    {% csrf_token %}
