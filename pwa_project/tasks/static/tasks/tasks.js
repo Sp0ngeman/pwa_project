@@ -27,16 +27,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     if (addTaskForm) {
         addTaskForm.addEventListener("submit", function(event) {
-            event.preventDefault();
-            const task = { name: event.target.elements.task.value };
-            if (navigator.onLine) {
-                // Send task directly to server if online
-                submitTaskToServer(task);
-            } else {
-                // Save task to IndexedDB and register sync if offline
+            if (!navigator.onLine) {
+                // Only intercept form submission when offline
+                event.preventDefault();
+                const task = { name: event.target.elements.task.value };
                 saveTask(task);
                 registerSync();
             }
+            // When online, let the normal Django form submission proceed
         });
     }
 });
@@ -47,7 +45,7 @@ function loadTaskList() {
         console.warn("Offline mode detected. Loading tasks from IndexedDB.");
         loadTasksFromIndexedDB();
     } else {
-        fetch('api/tasks/')
+        fetch('/tasks/api/tasks/')
             .then(response => response.json())
             .then(tasks => {
                 const taskList = document.querySelector('#task-list');
@@ -111,7 +109,7 @@ function submitTaskToServer(task) {
         registerSync();
         return;
     }
-    fetch('api/tasks/create/', {
+    fetch('/tasks/api/tasks/create/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -126,7 +124,11 @@ function submitTaskToServer(task) {
     })
     .then(data => {
         console.log("Server response:", data);
-        addTaskToPage(data.task); // Add the task to the page directly
+        // Reload the entire task list to show all tasks including the new one
+        loadTaskList();
+        // Clear the form
+        const form = document.querySelector("#taskForm");
+        if (form) form.reset();
     })
     .catch(error => {
         console.error("Failed to send task to server:", error);
@@ -187,7 +189,7 @@ function syncTasksToServer() {
                     cursor.continue();
                 } else {
                     tasks.forEach(task => {
-                        fetch('api/tasks/create/', {
+                        fetch('/tasks/api/tasks/create/', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

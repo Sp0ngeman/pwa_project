@@ -51,13 +51,18 @@ self.addEventListener('fetch', function(event) {
                 return response || fetch(event.request).then(function(networkResponse) {
                     // Clone the network response for caching
                     const clonedResponse = networkResponse.clone();
-                    // Cache the response if it’s for `/api/tasks/`
-                    if (event.request.url.includes('/api/tasks/')) {
-                        caches.open('task-list-cache').then(function(cache) {
-                            cache.put(event.request, clonedResponse);
-                            console.log('/api/tasks/ has been cached');
-                        });
-                    }
+                        // Cache the response if it's for `/tasks/api/tasks/`
+    if (event.request.url.includes('/tasks/api/tasks/')) {
+        caches.open('task-list-cache').then(function(cache) {
+            cache.put(event.request, clonedResponse);
+            console.log('/tasks/api/tasks/ has been cached');
+        });
+    }
+    
+    // Don't cache JavaScript files to ensure we get the latest version
+    if (event.request.url.includes('.js')) {
+        return networkResponse;
+    }
                     // Dynamically cache `/tasks/add` when accessed online
                     if (event.request.url.includes('/tasks/add')) {
                         caches.open('task-list-cache').then(function(cache) {
@@ -78,8 +83,8 @@ self.addEventListener('fetch', function(event) {
                     return networkResponse;
                 });
             }).catch(() => {
-                // If offline and the request is for `/api/tasks/`, return the cached version
-                if (event.request.url.includes('api/tasks/')) {
+                // If offline and the request is for `/tasks/api/tasks/`, return the cached version
+                if (event.request.url.includes('/tasks/api/tasks/')) {
                     return caches.match(event.request).then(cachedResponse => {
                         if (cachedResponse) {
                             return cachedResponse;
@@ -133,7 +138,7 @@ function syncTasksToServer() {
                     cursor.continue();
                 } else {
                     tasks.forEach(task => {
-                        fetch('api/tasks/create/', {
+                        fetch('/tasks/api/tasks/create/', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
