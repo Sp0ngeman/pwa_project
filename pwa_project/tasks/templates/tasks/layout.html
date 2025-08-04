@@ -11,7 +11,7 @@
     <header>
         <div class="user-info">
             {% if request.user.is_authenticated %}
-                <span>{{ request.user.username }}</span>
+                <span>{{ username }}</span>
                 <form action="{% url 'users:logout' %}" method="post">
                     {% csrf_token %}
                     <button type="submit">Logout</button>

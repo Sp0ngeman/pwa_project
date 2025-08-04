@@ -37,6 +37,7 @@ AUTHENTICATION_BACKENDS = (
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'tasks',
     'users',
     'django.contrib.sites',
@@ -73,6 +74,7 @@ LOGIN_REDIRECT_URL = '/users/'
 LOGOUT_REDIRECT_URL = '/users/login/'
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'allauth.account.middleware.AccountMiddleware', 
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -98,6 +100,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'tasks.context_processors.username',
             ],
         },
     },
@@ -159,3 +162,13 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_URL = '/static/'
+
+# CORS settings for React development server
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # React development server
+]
+
+# Static files configuration for React build
+STATICFILES_DIRS = [
+    BASE_DIR / "tasks" / "static" / "tasks" / "build" / "static",
+]
