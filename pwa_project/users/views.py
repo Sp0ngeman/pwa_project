@@ -9,7 +9,7 @@ from django.contrib import messages
 
 @login_required(login_url='users:login')
 def user(request):
-    return render(request, "tasks/index.html")
+    return redirect('chipin:index')
 
 def login_view(request):
     if request.method == "POST":
@@ -18,7 +18,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            next_url = request.GET.get('next', reverse("users:user"))
+            next_url = request.GET.get('next', reverse("chipin:index"))
             return HttpResponseRedirect(next_url)
         else:
             messages.error(request, "Invalid Credentials.")

@@ -1,0 +1,64 @@
+# ChipIn Assignment - Python Dependencies
+# HSC Software Engineering Assessment Task 2
+# Secure Social Media Platform for Students
+
+# Core Django Framework
+Django==5.2.4
+
+# User Authentication and Social Login
+django-allauth==65.10.0
+
+# CORS Handling for Frontend Integration
+django-cors-headers==4.7.0
+
+# HTTP Requests for External APIs
+requests==2.32.4
+
+# Additional Security Dependencies
+django-extensions==3.2.3
+
+# Database Support (SQLite included with Django)
+# For production, consider PostgreSQL:
+# psycopg2-binary==2.9.9
+
+# Development and Testing Tools
+coverage==7.6.1
+django-debug-toolbar==4.4.6
+
+# Static File Handling (for production)
+whitenoise==6.8.1
+
+# Environment Variable Management
+python-decouple==3.8
+
+# Date/Time Handling
+python-dateutil==2.9.0
+
+# Form Handling and Validation
+django-crispy-forms==2.3
+crispy-bootstrap5==2024.2
+
+# Security Enhancements
+django-ratelimit==4.1.0
+django-csp==3.8
+
+# Logging and Monitoring
+sentry-sdk==2.12.0
+
+# Financial Calculations (Decimal handling)
+# Built-in decimal module used for accuracy
+
+# Development Quality Tools
+flake8==7.1.1
+black==24.8.0
+isort==5.13.2
+
+# Documentation Generation
+Sphinx==8.0.2
+sphinx-rtd-theme==2.0.0
+
+# Requirements Installation:
+# pip install -r requirements.txt
+#
+# For development:
+# pip install -r requirements.txt -r requirements-dev.txt

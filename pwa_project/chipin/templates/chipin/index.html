@@ -1,0 +1,202 @@
+{% extends "chipin/layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Welcome to ChipIn, {{ user.username }}!</h1>
+            <p>Your platform for task management and collaborative financial planning.</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'chipin:add' %}" class="btn btn-primary">
+                Add New Task
+            </a>
+        </div>
+    </div>
+
+    <!-- Task Management Section -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2>Your Tasks</h2>
+            
+            <!-- Task Statistics -->
+            <div class="row mb-3">
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-primary">{{ pending_count }}</h4>
+                            <small>Pending Tasks</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-success">{{ completed_count }}</h4>
+                            <small>Completed Tasks</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-danger">{{ overdue_count }}</h4>
+                            <small>Overdue Tasks</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h4 class="text-info">${{ profile.balance }}</h4>
+                            <small>ChipIn Balance</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task List -->
+            {% if tasks %}
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>Recent Tasks</h5>
+                        <div>
+                            <select class="form-select form-select-sm" id="filterPriority">
+                                <option value="">All Priorities</option>
+                                <option value="URGENT">Urgent</option>
+                                <option value="HIGH">High</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="LOW">Low</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% for task in tasks %}
+                            <div class="task-item border-bottom py-2" data-priority="{{ task.priority }}">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center">
+                                            <form method="post" action="{% url 'chipin:toggle_task' task.id %}" style="display: inline;">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm {% if task.completed %}btn-success{% else %}btn-outline-secondary{% endif %} me-2">
+                                                    {% if task.completed %}✓{% else %}○{% endif %}
+                                                </button>
+                                            </form>
+                                            
+                                            <div>
+                                                <h6 class="mb-1 {% if task.completed %}text-decoration-line-through text-muted{% endif %}">
+                                                    {{ task.title }}
+                                                </h6>
+                                                {% if task.category %}
+                                                    <small class="text-muted">{{ task.category.name }}</small>
+                                                {% endif %}
+                                                {% if task.description %}
+                                                    <p class="mb-0 small text-muted">{{ task.description|truncatewords:15 }}</p>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-2 text-center">
+                                        <span class="badge priority-{{ task.priority|lower }}">
+                                            {{ task.priority }}
+                                        </span>
+                                    </div>
+                                    
+                                    <div class="col-md-2 text-center">
+                                        {% if task.due_date %}
+                                            <small class="{% if task.is_overdue %}text-danger{% else %}text-muted{% endif %}">
+                                                {{ task.due_date|date:"M d" }}
+                                            </small>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="col-md-2 text-end">
+                                        <form method="post" action="{% url 'chipin:delete_task' task.id %}" style="display: inline;" onsubmit="return confirm('Delete this task?')">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <h5>No tasks yet!</h5>
+                    <p class="mb-0">Get started by <a href="{% url 'chipin:add' %}">creating your first task</a>.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ChipIn Features Section -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Financial Overview</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Balance:</strong> ${{ profile.balance }}</p>
+                    <p><strong>Spending Limit:</strong> ${{ profile.spending_limit }}</p>
+                    <p><strong>Account Status:</strong> 
+                        {% if profile.is_verified %}
+                            <span class="badge bg-success">Verified</span>
+                        {% else %}
+                            <span class="badge bg-warning">Unverified</span>
+                        {% endif %}
+                    </p>
+                    <a href="{% url 'chipin:payment_dashboard' %}" class="btn btn-primary">
+                        Payment Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Groups & Events</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Your Groups:</strong> {{ user_groups.count }}</p>
+                    <p><strong>Active Events:</strong> {{ user_events.count }}</p>
+                    <p>Organize events, share costs, and manage group finances.</p>
+                    <button class="btn btn-secondary" disabled>
+                        Group Management (Coming Soon)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.task-item {
+    transition: background-color 0.2s;
+}
+.task-item:hover {
+    background-color: #f8f9fa;
+}
+.priority-urgent { background-color: #dc3545; }
+.priority-high { background-color: #fd7e14; }
+.priority-medium { background-color: #ffc107; color: #000; }
+.priority-low { background-color: #198754; }
+</style>
+
+<script>
+document.getElementById('filterPriority').addEventListener('change', function() {
+    const selectedPriority = this.value;
+    const taskItems = document.querySelectorAll('.task-item');
+    
+    taskItems.forEach(item => {
+        if (selectedPriority === '' || item.dataset.priority === selectedPriority) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

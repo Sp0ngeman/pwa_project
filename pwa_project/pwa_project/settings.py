@@ -38,8 +38,8 @@ AUTHENTICATION_BACKENDS = (
 
 INSTALLED_APPS = [
     'corsheaders',
-    'tasks',
     'users',
+    'chipin',
     'django.contrib.sites',
     'allauth',
     'allauth.account',
@@ -64,9 +64,10 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 # Additional allauth settings (updated for django-allauth 65.x)
-ACCOUNT_LOGIN_METHODS = {'email'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}
+ACCOUNT_SIGNUP_FIELDS = ['username*', 'email*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_UNIQUE_EMAIL = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_EMAIL_REQUIRED = False
 
@@ -93,14 +94,14 @@ ROOT_URLCONF = 'pwa_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'tasks.context_processors.username',
+                'chipin.context_processors.username',
             ],
         },
     },

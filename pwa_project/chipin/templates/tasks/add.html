@@ -1,0 +1,37 @@
+{% extends "tasks/layout.html" %}
+{% load static %}
+{% block content %}
+<h1>Add Task</h1>
+<form action="{% url 'tasks:add' %}" method="post" id="taskForm">
+    {% csrf_token %}
+    <table>
+        <!-- Render the form fields explicitly -->
+        <tr>
+            <td>{{ form.task.label_tag }}</td>
+            <td>{{ form.task }}</td>
+        </tr>
+        <tr>
+            <td>{{ form.category.label_tag }}</td>
+            <td>{{ form.category }}</td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <input type="submit" id="submit" disabled>
+            </td>
+        </tr>
+    </table>
+</form>
+<a href="{% url 'tasks:index' %}">View Tasks</a>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelector("#task").onkeyup = () => {
+            if (document.querySelector("#task").value.length > 0) {
+                document.querySelector("#submit").disabled = false;
+            } else {
+                document.querySelector("#submit").disabled = true;
+            }
+        }
+    });
+</script>
+{% endblock %}
+{% block scripts %}{% endblock %}

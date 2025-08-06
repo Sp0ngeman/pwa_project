@@ -1,0 +1,24 @@
+{% extends "chipin/layout.html" %}
+
+{% block title %}Transfer Funds{% endblock %}
+
+{% block content %}
+<h1>Transfer Funds</h1>
+<p>Your current balance: ${{ profile.balance }}</p>
+<p>Your spending limit: ${{ profile.spending_limit }}</p>
+<p>Account Verified: {{ profile.is_verified|yesno:"Yes,No" }}</p>
+
+<form method="post" class="mt-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="recipient_username" class="form-label">Recipient Username:</label>
+        <input type="text" name="recipient_username" id="recipient_username" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label for="amount" class="form-label">Amount:</label>
+        <input type="number" step="0.01" name="amount" id="amount" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Transfer Funds</button>
+    <a href="{% url 'chipin:payment_dashboard' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

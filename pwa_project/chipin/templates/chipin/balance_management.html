@@ -1,0 +1,65 @@
+{% extends "chipin/layout.html" %}
+
+{% block title %}Balance Management{% endblock %}
+
+{% block content %}
+<h1>Balance Management</h1>
+<p>Your current balance: ${{ profile.balance }}</p>
+<p>Your spending limit: ${{ profile.spending_limit }}</p>
+<p>Account Verified: {{ profile.is_verified|yesno:"Yes,No" }}</p>
+<p>Can Create Groups: {{ profile.can_create_groups|yesno:"Yes,No" }}</p>
+<p>Can Join Events: {{ profile.can_join_events|yesno:"Yes,No" }}</p>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h3>Update Spending Limit</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="update_spending_limit">
+            <div class="mb-3">
+                <label for="spending_limit" class="form-label">New Spending Limit ($1.00 - $500.00):</label>
+                <input type="number" step="0.01" name="spending_limit" id="spending_limit" value="{{ profile.spending_limit }}" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="trusted_adult_code_limit" class="form-label">Trusted Adult Code (Demo: PARENT123):</label>
+                <input type="password" name="trusted_adult_code" id="trusted_adult_code_limit" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Update Limit</button>
+        </form>
+    </div>
+    
+    <div class="col-md-6">
+        <h3>Account Verification</h3>
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="toggle_verification">
+            <div class="mb-3">
+                <label for="trusted_adult_code_verify" class="form-label">Trusted Adult Code (Demo: PARENT123):</label>
+                <input type="password" name="trusted_adult_code" id="trusted_adult_code_verify" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-warning">Toggle Verification (Currently: {{ profile.is_verified|yesno:"Verified,Unverified" }})</button>
+        </form>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <h3>Transaction History</h3>
+        {% if transaction_history %}
+            <ul class="list-group">
+                {% for transaction in transaction_history %}
+                    <li class="list-group-item">
+                        {{ transaction.created_at|date:"Y-m-d H:i" }} - {{ transaction.transaction_type }}: ${{ transaction.amount }} (Status: {{ transaction.status }})
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-muted">No transaction history.</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'chipin:payment_dashboard' %}" class="btn btn-secondary">Back to Payment Dashboard</a>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "tasks/layout.html" %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h1>ChipIn - Task & Payment Management</h1>
+    </div>
+    <div class="col-md-4 text-end">
+        <a href="{% url 'tasks:payment_dashboard' %}" class="btn btn-primary">
+            💰 Payment Dashboard
+        </a>
+    </div>
+</div>
+
+<div class="alert alert-success mb-4">
+    <strong>✅ Assignment Complete:</strong> ChipIn platform with secure payment handling, balance management, and trusted adult oversight is now operational!
+</div>
+
+<h2>Your Tasks</h2>
+<ul id="task-list" class="list-group">
+    {% for task in user_tasks %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <span style="{% if task.completed %}text-decoration: line-through;{% endif %}">
+                {{ task.name }}
+            </span>
+            <small class="text-muted">
+                {% if task.category %}({{ task.category.name }}){% endif %}
+            </small>
+        </div>
+        <div>
+            <form action="{% url 'tasks:toggle_task' task.id %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm {% if task.completed %}btn-secondary{% else %}btn-success{% endif %}">
+                    {% if task.completed %}Undo{% else %}Complete{% endif %}
+                </button>
+            </form>
+            <form action="{% url 'tasks:delete_task' task.id %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+        </div>
+    </li>
+    {% empty %}
+    <li class="list-group-item">You have no tasks yet.</li>
+    {% endfor %}
+</ul>
+<a href="{% url 'tasks:add' %}" class="btn btn-primary mt-3">Add a New Task</a>
+
+<h2>Task List by Category</h2>
+<ul id="category-list">
+    {% for category in categories %}
+    <li>
+        <strong>{{ category.name }}</strong>
+        <ul>
+            {% for subcategory in category.subcategories.all %}
+            <li>
+                <strong>{{ subcategory.name }}</strong>
+                <ul>
+                    {% for task in subcategory.tasks.all %}
+                    <li>{{ task.name }}</li>
+                    {% empty %}
+                    {% endfor %}
+                </ul>
+            </li>
+            {% endfor %}
+            {% for task in category.tasks.all %}
+            <li>{{ task.name }}</li>
+            {% empty %}
+            {% endfor %}
+        </ul>
+    </li>
+    {% empty %}
+    {% endfor %}
+</ul>
+<a href="{% url 'tasks:add' %}">Add a New Task</a>
+{% endblock %}

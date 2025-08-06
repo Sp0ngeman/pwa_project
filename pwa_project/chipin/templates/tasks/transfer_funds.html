@@ -1,0 +1,89 @@
+{% extends "tasks/layout.html" %}
+
+{% block title %}Transfer Funds - ChipIn{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h1>Transfer Funds</h1>
+    <div class="alert alert-info">
+        <strong>💸 Secure Transfers:</strong> Send money to other students for events and activities.
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Transfer Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="recipient_username" class="form-label">Recipient Username</label>
+                            <input type="text" class="form-control" id="recipient_username" 
+                                   name="recipient_username" required>
+                            <small class="form-text text-muted">Enter the username of the person to send money to</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Amount to Transfer</label>
+                            <input type="number" class="form-control" id="amount" name="amount" 
+                                   min="1" max="{{ profile.spending_limit }}" step="0.01" required>
+                            <small class="form-text text-muted">Maximum: ${{ profile.spending_limit }} (your spending limit)</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">Send Transfer</button>
+                        <a href="{% url 'tasks:payment_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Account Information</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Available Balance:</strong> ${{ profile.balance }}</p>
+                    <p><strong>Spending Limit:</strong> ${{ profile.spending_limit }}</p>
+                    <p><strong>Account Status:</strong> 
+                        {% if profile.is_verified %}
+                            <span class="badge bg-success">Verified</span>
+                        {% else %}
+                            <span class="badge bg-warning">Unverified</span>
+                        {% endif %}
+                    </p>
+                    
+                    {% if not profile.is_verified %}
+                        <div class="alert alert-warning">
+                            <small>Account must be verified by trusted adult to send transfers.</small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            {% if user_events %}
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h6>Recent Events</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            {% for event in user_events %}
+                                <li class="list-group-item">{{ event.title }} - ${{ event.cost_per_person }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
